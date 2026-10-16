@@ -4,8 +4,9 @@ The PDF opens with the configuration used for the run (model, effort, tools,
 system prompt, environment, task, cost), followed by the agent's report.
 
 Usage:
+    python run_agent.py                      # run the job search (sends task.txt)
     python run_agent.py "your research question"
-    python run_agent.py --task-file task.txt
+    python run_agent.py --task-file other_task.txt
     python run_agent.py --session sesn_...   # rebuild the files from an earlier run
 """
 
@@ -105,9 +106,8 @@ def main() -> None:
     if args.session:
         session_id = args.session
     else:
-        task = open(args.task_file, encoding="utf-8").read().strip() if args.task_file else " ".join(args.task)
-        if not task:
-            parser.error("give a research question or --task-file")
+        task_file = args.task_file or (None if args.task else "task.txt")
+        task = open(task_file, encoding="utf-8").read().strip() if task_file else " ".join(args.task)
         session_id = run(client, task)
 
     if not save_run(client, session_id):

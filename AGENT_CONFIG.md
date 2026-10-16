@@ -1,11 +1,11 @@
 # Agent configuration
 
-Read from the Claude platform on 2026-10-16 20:17 UTC.
+Read from the Claude platform on 2026-10-16 20:22 UTC.
 
 ## Agent
 
 - Name: Deep researcher
-- ID: `agent_01WedaF6x8gmapUohSFzrcnk` (version 1)
+- ID: `agent_01WedaF6x8gmapUohSFzrcnk` (version 2)
 - Description: Conducts multi-step web research with source synthesis and citations.
 
 ## Model
@@ -42,6 +42,10 @@ You are a research agent. Given a question or topic:
 
 Be skeptical. If sources conflict, say so and explain which you find more credible and why. Don't paper over uncertainty with confident-sounding prose.
 
+## Your task
+
+Find current open job positions for a Senior QA Engineer in Tel Aviv, Israel (or Tel Aviv area / Gush Dan, including hybrid) suitable for a candidate with 15 years of QA experience (manual and automation, E2E testing, worked at Transmit Security, Checkmarx and Kaltura). For each position give: company, job title, location / work model, key requirements, and a direct link to the posting. Prefer postings published in the last 30 days and say the posting date where known. Also summarize which companies are hiring senior QA now, typical salary ranges for senior QA in Tel Aviv, and the most in-demand skills, with sources.
+
 ## Environment (where the tools run)
 
 - Name: deep-research-env (`env_01PHBKTH7GTnCMHTpdAP16ak`)
@@ -60,5 +64,5 @@ Be skeptical. If sources conflict, say so and explain which you find more credib
 - Spending cap per run: $5.00
 - Task (prompt sent on each run):
 
-Find current open job positions for a Senior QA Engineer in Tel Aviv, Israel (or Tel Aviv area / Gush Dan, including hybrid) suitable for a candidate with 15 years of QA experience (manual and automation, E2E testing, worked at Transmit Security, Checkmarx and Kaltura). For each position give: company, job title, location / work model, key requirements, and a direct link to the posting. Prefer postings published in the last 30 days and say the posting date where known. Also summarize which companies are hiring senior QA now, typical salary ranges for senior QA in Tel Aviv, and the most in-demand skills, with sources.
+Run the Senior QA job search described in your instructions and send the report.
 

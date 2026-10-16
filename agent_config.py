@@ -139,7 +139,8 @@ def describe_run(session, task: str) -> list[str]:
 
 
 def build_document(client, session=None, task: str | None = None) -> str:
-    agent = client.beta.agents.retrieve(AGENT_ID)
+    # A run documents the agent version it actually used, not the latest one.
+    agent = session.agent if session is not None else client.beta.agents.retrieve(AGENT_ID)
     env = client.beta.environments.retrieve(ENVIRONMENT_ID)
     lines = [
         "# Agent configuration",

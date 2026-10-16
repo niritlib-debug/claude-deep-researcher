@@ -15,11 +15,11 @@ Full, auto-generated details are in [AGENT_CONFIG.md](AGENT_CONFIG.md) (the agen
 | Model | `claude-opus-5-5` |
 | Effort | low |
 | Tools | Built-in toolset `agent_toolset_20260401`: web_search, web_fetch, bash, read, write, edit, glob, grep — all enabled, permission policy `auto` |
-| System prompt | Research method: split into sub-questions, search and read primary sources, cite every claim, end with "confidence & gaps" |
+| System prompt | Research method (sub-questions, primary sources, cite every claim, "confidence & gaps") **plus the task**: find Senior QA openings in Tel Aviv for 15 years' experience, with links, dates, hiring companies, salaries and in-demand skills. Kept in `system_prompt.md` |
 | Environment | `deep-research-env`, cloud container, unrestricted network |
-| Task (prompt) | Sent per run — see the "Task" section of `run_config.md` |
+| Run message | Short kickoff in `task.txt`: "Run the Senior QA job search described in your instructions and send the report." |
 | Spending cap | $5.00 per run (session budget set in `run_agent.py` and `schedule.py`) |
-| Schedule | Every day at 08:00 and 20:00 Israel time (cron `0 8,20 * * *`, `Asia/Jerusalem`), set in `schedule.py`; task in `task.txt` |
+| Schedule | Every day at 08:00 and 20:00 Israel time (cron `0 8,20 * * *`, `Asia/Jerusalem`), set in `schedule.py` |
 
 ## Files
 
@@ -33,7 +33,9 @@ Full, auto-generated details are in [AGENT_CONFIG.md](AGENT_CONFIG.md) (the agen
 | `run_agent.py` | Sends a task to the agent and writes `run_config.md`, `report.md` and `report.pdf` |
 | `run_config.md` | The last run: configuration + task prompt + session, tokens, searches, cost |
 | `report.pdf` | Configuration page, then the agent's report (Senior QA job openings in Tel Aviv) |
-| `task.txt` | The task (prompt) the scheduled runs send to the agent |
+| `system_prompt.md` | The agent's system prompt, including the job-search task |
+| `update_agent.py` | Applies `system_prompt.md` to the agent (new version) and moves the schedule to it |
+| `task.txt` | The short kickoff message each run sends |
 | `schedule.py` | The schedule settings; run it to apply changes on the platform |
 | `collect_reports.py` | Saves each scheduled run's report to `reports/<date>_<time>/report.pdf` |
 
@@ -58,18 +60,31 @@ python3 -m venv .venv && .venv/bin/pip install anthropic python-dotenv fpdf2
 
 Run the agent with a question, or with a longer task saved in a text file:
 
+Run the job search now (sends `task.txt`):
+
+```bash
+.venv/bin/python run_agent.py
+```
+
+Or ask the agent something else:
+
 ```bash
 .venv/bin/python run_agent.py "your research question"
 ```
 
+## Changing the task
+
+The job-search task is part of the agent's system prompt. Edit `system_prompt.md`, then apply it
+(this creates a new agent version and moves the schedule to it):
+
 ```bash
-.venv/bin/python run_agent.py --task-file task.txt
+.venv/bin/python update_agent.py
 ```
 
 ## Scheduled runs
 
 The Claude platform runs the agent at 08:00 and 20:00 Israel time, in the cloud — your computer can be off.
-To change the time or the task, edit `schedule.py` or `task.txt`, then apply:
+To change the time, edit `schedule.py`, then apply:
 
 ```bash
 .venv/bin/python schedule.py
