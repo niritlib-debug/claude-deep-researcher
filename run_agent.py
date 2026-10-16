@@ -17,6 +17,7 @@ import sys
 import anthropic
 from dotenv import load_dotenv
 from fpdf import FPDF
+from fpdf.fonts import FontFace
 
 from agent_config import AGENT_ID, ENVIRONMENT_ID, build_document
 
@@ -69,10 +70,18 @@ def read_session(client: anthropic.Anthropic, session_id: str) -> tuple[str, str
 
 
 def write_markdown(pdf: FPDF, markdown: str) -> None:
-    for line in markdown.splitlines():
+    table: list[list[str]] = []
+    for line in markdown.splitlines() + [""]:
+        if line.lstrip().startswith("|"):
+            cells = [plain(c) for c in line.strip().strip("|").split("|")]
+            if not all(re.fullmatch(r":?-+:?", c.strip()) for c in cells):  # skip |---| rows
+                table.append(cells)
+            continue
+        if table:
+            write_table(pdf, table)
+            table = []
         heading = re.match(r"^(#{1,6})\s+(.*)", line)
-        text = heading.group(2) if heading else line
-        text = re.sub(r"\*\*(.+?)\*\*", r"\1", text).replace("`", "")
+        text = plain(heading.group(2) if heading else line)
         if heading:
             pdf.ln(2)
             pdf.set_font("Body", size=max(20 - 3 * len(heading.group(1)), 11))
@@ -80,6 +89,26 @@ def write_markdown(pdf: FPDF, markdown: str) -> None:
         else:
             pdf.set_font("Body", size=10)
             pdf.multi_cell(0, 5, text or " ", new_x="LMARGIN", new_y="NEXT")
+
+
+def plain(text: str) -> str:
+    """Strip Markdown bold and code marks; show links as 'text: url'."""
+    text = re.sub(r"\[([^\]]+)\]\((\S+?)\)", r"\1: \2", text)
+    return re.sub(r"\*\*(.+?)\*\*", r"\1", text).replace("`", "").strip()
+
+
+def write_table(pdf: FPDF, rows: list[list[str]]) -> None:
+    columns = max(len(r) for r in rows)
+    rows = [r + [""] * (columns - len(r)) for r in rows]
+    # Wider columns for longer text, so short columns like "#" stay narrow.
+    widths = [max(4, min(40, max(len(r[i]) for r in rows))) for i in range(columns)]
+    pdf.ln(1)
+    pdf.set_font("Body", size=7)
+    with pdf.table(col_widths=widths, line_height=3.5, padding=1, text_align="LEFT",
+                   headings_style=FontFace(emphasis="", fill_color=(230, 230, 230))) as table:
+        for row in rows:
+            table.row(row)
+    pdf.ln(2)
 
 
 def write_pdf(config: str, report: str, path: str) -> None:
