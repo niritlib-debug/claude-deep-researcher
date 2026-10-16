@@ -110,18 +110,25 @@ def main() -> None:
             parser.error("give a research question or --task-file")
         session_id = run(client, task)
 
+    if not save_run(client, session_id):
+        sys.exit("The agent returned no report.")
+    print("Saved run_config.md, report.md and report.pdf")
+
+
+def save_run(client: anthropic.Anthropic, session_id: str, folder: str = ".") -> bool:
+    """Write run_config.md, report.md and report.pdf for a finished session into folder."""
     task, report = read_session(client, session_id)
     if not report:
-        sys.exit("The agent returned no report.")
+        return False
     session = client.beta.sessions.retrieve(session_id=session_id)
     config = build_document(client, session=session, task=task)
 
-    with open("run_config.md", "w", encoding="utf-8") as f:
+    with open(f"{folder}/run_config.md", "w", encoding="utf-8") as f:
         f.write(config + "\n")
-    with open("report.md", "w", encoding="utf-8") as f:
+    with open(f"{folder}/report.md", "w", encoding="utf-8") as f:
         f.write(report + "\n")
-    write_pdf(config, report, "report.pdf")
-    print("Saved run_config.md, report.md and report.pdf")
+    write_pdf(config, report, f"{folder}/report.pdf")
+    return True
 
 
 if __name__ == "__main__":

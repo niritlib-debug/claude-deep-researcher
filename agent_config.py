@@ -93,6 +93,29 @@ def describe_environment(env) -> list[str]:
     ]
 
 
+def describe_schedules(deployments) -> list[str]:
+    lines = ["## Schedule (automatic runs)", ""]
+    for d in deployments:
+        task = " ".join(b.text for e in d.initial_events for b in e.content if b.type == "text")
+        budget = f"${int(d.budget.max_list_cost.amount) / 100:.2f}" if d.budget else "none"
+        lines += [
+            f"### {d.name}",
+            "",
+            f"- ID: `{d.id}`",
+            f"- Status: {d.status}",
+            f"- When: cron `{d.schedule.expression}` ({d.schedule.timezone})",
+            f"- Next runs (UTC): {', '.join(f'{t:%Y-%m-%d %H:%M}' for t in d.schedule.upcoming_runs_at[:4])}",
+            f"- Spending cap per run: {budget}",
+            "- Task (prompt sent on each run):",
+            "",
+            *task.splitlines(),
+            "",
+        ]
+    if len(lines) == 2:
+        lines += ["No automatic runs are scheduled.", ""]
+    return lines
+
+
 def describe_run(session, task: str) -> list[str]:
     usage = session.usage
     cost = int(usage.list_cost.amount) / 100 if usage.list_cost else None
@@ -126,6 +149,10 @@ def build_document(client, session=None, task: str | None = None) -> str:
         *describe_agent(agent),
         *describe_environment(env),
     ]
+    if session is None:
+        deployments = [d for d in client.beta.deployments.list()
+                       if d.agent.id == AGENT_ID and d.status != "archived"]
+        lines += describe_schedules(deployments)
     if session is not None:
         lines += describe_run(session, task or "")
     return "\n".join(lines)

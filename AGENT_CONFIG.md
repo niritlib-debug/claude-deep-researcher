@@ -1,6 +1,6 @@
 # Agent configuration
 
-Read from the Claude platform on 2026-10-16 20:11 UTC.
+Read from the Claude platform on 2026-10-16 20:17 UTC.
 
 ## Agent
 
@@ -48,4 +48,17 @@ Be skeptical. If sources conflict, say so and explain which you find more credib
 - Type: cloud container
 - Network access: unrestricted
 - Extra packages: none
+
+## Schedule (automatic runs)
+
+### Senior QA jobs - twice daily
+
+- ID: `depl_01Nd6WF5oFfHcKyCZmy1hjGi`
+- Status: active
+- When: cron `0 8,20 * * *` (Asia/Jerusalem)
+- Next runs (UTC): 2026-10-17 05:00, 2026-10-17 17:00, 2026-10-18 05:00, 2026-10-18 17:00
+- Spending cap per run: $5.00
+- Task (prompt sent on each run):
+
+Find current open job positions for a Senior QA Engineer in Tel Aviv, Israel (or Tel Aviv area / Gush Dan, including hybrid) suitable for a candidate with 15 years of QA experience (manual and automation, E2E testing, worked at Transmit Security, Checkmarx and Kaltura). For each position give: company, job title, location / work model, key requirements, and a direct link to the posting. Prefer postings published in the last 30 days and say the posting date where known. Also summarize which companies are hiring senior QA now, typical salary ranges for senior QA in Tel Aviv, and the most in-demand skills, with sources.
 

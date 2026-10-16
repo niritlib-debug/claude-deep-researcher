@@ -18,7 +18,8 @@ Full, auto-generated details are in [AGENT_CONFIG.md](AGENT_CONFIG.md) (the agen
 | System prompt | Research method: split into sub-questions, search and read primary sources, cite every claim, end with "confidence & gaps" |
 | Environment | `deep-research-env`, cloud container, unrestricted network |
 | Task (prompt) | Sent per run — see the "Task" section of `run_config.md` |
-| Spending cap | $5.00 per run (session budget set in `run_agent.py`) |
+| Spending cap | $5.00 per run (session budget set in `run_agent.py` and `schedule.py`) |
+| Schedule | Every day at 08:00 and 20:00 Israel time (cron `0 8,20 * * *`, `Asia/Jerusalem`), set in `schedule.py`; task in `task.txt` |
 
 ## Files
 
@@ -32,6 +33,9 @@ Full, auto-generated details are in [AGENT_CONFIG.md](AGENT_CONFIG.md) (the agen
 | `run_agent.py` | Sends a task to the agent and writes `run_config.md`, `report.md` and `report.pdf` |
 | `run_config.md` | The last run: configuration + task prompt + session, tokens, searches, cost |
 | `report.pdf` | Configuration page, then the agent's report (Senior QA job openings in Tel Aviv) |
+| `task.txt` | The task (prompt) the scheduled runs send to the agent |
+| `schedule.py` | The schedule settings; run it to apply changes on the platform |
+| `collect_reports.py` | Saves each scheduled run's report to `reports/<date>_<time>/report.pdf` |
 
 ## Setup
 
@@ -61,6 +65,23 @@ Run the agent with a question, or with a longer task saved in a text file:
 ```bash
 .venv/bin/python run_agent.py --task-file task.txt
 ```
+
+## Scheduled runs
+
+The Claude platform runs the agent at 08:00 and 20:00 Israel time, in the cloud — your computer can be off.
+To change the time or the task, edit `schedule.py` or `task.txt`, then apply:
+
+```bash
+.venv/bin/python schedule.py
+```
+
+Download the finished scheduled reports as PDFs:
+
+```bash
+.venv/bin/python collect_reports.py
+```
+
+To stop the schedule, pause it in the Claude Console (Deployments) or with `client.beta.deployments.pause(...)`.
 
 Rebuild the files from an earlier run without paying for a new one:
 
